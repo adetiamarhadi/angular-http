@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from "@angular/core";
-import { Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Post } from './post.model';
 
 @Injectable({ providedIn: 'root' })
@@ -26,7 +26,8 @@ export class PostsService {
   }
 
   fetchPosts() {
-    return this.http.get<{ [key: string]: Post }>('https://ng-complete-guide-49595-default-rtdb.firebaseio.com/posts.json').pipe(
+    return this.http.get<{ [key: string]: Post }>('https://ng-complete-guide-49595-default-rtdb.firebaseio.com/posts.json')
+    .pipe(
       map(responseData => {
         const postsArray: Post[] = [];
         for (const key in responseData) {
@@ -35,6 +36,8 @@ export class PostsService {
           }
         }
         return postsArray;
+      }), catchError(errorResponse => {
+        return throwError(errorResponse);
       })
     );
   }
